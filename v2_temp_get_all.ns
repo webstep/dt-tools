@@ -1,0 +1,21 @@
+importScripts=require('./importscripts.js').importScripts;
+importScripts('./apikey.ns');
+
+let device_types = 'device_types=temperature';
+let urlGet = DT_API_V2_URL + DT_API_V2_PROJECT_ID + DT_API_V2_DEVICES + device_types ;
+
+let XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+let xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener("readystatechange", function() {
+  if (this.readyState == 4) {
+    let response = JSON.parse(this.responseText);
+    console.log("Response:\n", JSON.stringify(response, null, '  '));
+  }
+});
+
+xhr.open("GET", urlGet);
+xhr.setRequestHeader("authorization", DT_API_V2_AUTH_BASIC);
+xhr.setRequestHeader("cache-control", "no-cache");
+xhr.send(null);

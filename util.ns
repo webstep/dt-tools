@@ -1,0 +1,156 @@
+/**
+ *
+ *  Some common util methods and constants to be used by the tools
+ *
+ */
+const DT_API_V2_PROJECT_ID = 'b9or9mld9r7000ceiq20';
+let DEVICE_NAME_LENGTH = 25;
+let LENGTH_TIMESTAMP = 20;
+
+const DT_API_V2_URL = 'https://api.disruptive-technologies.com/v2beta1/projects/';
+const DT_API_V2_URL_VS = 'https://api.disruptive-technologies.com/emulator/v2beta1/projects/';
+const DT_API_V2_DEVICES = '/devices?';
+const DT_API_V2_DEVICE = '/devices/';
+const DT_API_V2_STREAM_ALL = 'devices:stream?';
+const DT_API_V2_PUBLISH = ":publish";
+
+function timestamp() {
+  let ret;
+  const d = new Date();
+  ret = d.getFullYear() + '.';
+  ret +=  (d.getMonth()+1)>10 ? d.getMonth()+1 : '0' + (d.getMonth()+1);
+  ret += '.';
+  ret += d.getDate()>10 ? d.getDate() : '0' + d.getDate();
+  ret += ' ';
+  ret += d.getHours()>10 ? d.getHours() : '0' + d.getHours();
+  ret += ':';
+  ret += d.getMinutes()>10 ? d.getMinutes() : '0' + d.getMinutes();
+  ret += ':';
+  ret += d.getSeconds()>10 ? d.getSeconds() : '0' + d.getSeconds();
+  return ret;
+}
+
+function toLocaleTime(ts) {
+  let ret;
+  const d = new Date(ts);
+  ret = d.getDate()>9 ? d.getDate() : '0' + d.getDate();
+  ret += '.';
+  ret +=  (d.getMonth()+1)>9 ? d.getMonth()+1 : '0' + (d.getMonth()+1);
+  ret += '.';
+  ret += d.getFullYear() + ' ';
+  ret += d.getHours()>9 ? d.getHours() : '0' + d.getHours();
+  ret += ':';
+  ret += d.getMinutes()>9 ? d.getMinutes() : '0' + d.getMinutes();
+  ret += ':';
+  ret += d.getSeconds()>9 ? d.getSeconds() : '0' + d.getSeconds();
+  return ret;
+}
+
+function padRight(str, length, padChar) {
+  let ret = new String(str);
+  while(ret.length<length) {
+    ret = ret + padChar;
+  }
+  return ret;
+}
+
+function padLeft(str, length, padChar) {
+  let ret = new String(str);
+  while(ret.length<length) {
+    ret = padChar + ret;
+  }
+  return ret;
+}
+
+function getDeviceId(deviceUrl) {
+  let replaceMe = "projects/" + DT_API_V2_PROJECT_ID + "/devices/";
+  return deviceUrl.replace(replaceMe, "");
+}
+
+function logEvent(event) {
+  switch (event.eventType) {
+    case "temperature":
+      logTemperatureEvent(event);
+      break;
+    case "objectPresent":
+      logObjectPresentEvent(event);
+      break;
+    case "networkStatus":
+      // logNetworkStatusEvent(event);
+      break;
+    case "touch":
+      logTouchEvent(event);
+      break;
+    case "batteryStatus":
+      logBatteryStatusEvent(event);
+      break;
+    case "labelsChanged":
+      logLabelsChangedEvent(event);
+      break;
+    case "cellularStatus":
+      logCellularStatusEvent(event);
+      break;
+    default:
+      console.log(timestamp() + " rawData:\n" + JSON.stringify(event));
+  }
+}
+
+function logHeaderLine() {
+  console.log( padRight("Timestamp", LENGTH_TIMESTAMP, ' ') + padRight("Device ID", DEVICE_NAME_LENGTH, ' ') + padRight("EventType", DEVICE_NAME_LENGTH, ' ') +  "Data" );
+}
+
+function logTemperatureEvent(event) {
+  let temp = event.data.temperature;
+  console.log( padRight(toLocaleTime(temp.updateTime), LENGTH_TIMESTAMP, ' ') + padRight( getDeviceId(event.targetName), DEVICE_NAME_LENGTH, ' ') + padRight(event.eventType, DEVICE_NAME_LENGTH, ' ') + temp.value.toFixed(2) + " ˙C" );
+}
+
+function logObjectPresentEvent(event) {
+  let objectPresent = event.data.objectPresent;
+  console.log( padRight(toLocaleTime(objectPresent.updateTime), LENGTH_TIMESTAMP, ' ') + padRight( getDeviceId(event.targetName), DEVICE_NAME_LENGTH, ' ') + padRight(event.eventType, DEVICE_NAME_LENGTH, ' ') + objectPresent.state);
+}
+
+function logNetworkStatusEvent(event) {
+  let ns = event.data.networkStatus;
+  let cconStatus = "";
+  let ccon = ns.cloudConnectors;
+  for (let x=0; x < ccon.length; x++) {
+    cconStatus = ccon[x].id + "(" + ccon[x].signalStrength + "%)";
+  }
+  console.log( padRight(toLocaleTime(ns.updateTime), LENGTH_TIMESTAMP, ' ') + padRight(getDeviceId(event.targetName), DEVICE_NAME_LENGTH, ' ') + padRight(event.eventType, DEVICE_NAME_LENGTH, ' ') + ns.signalStrength + "% " + ns.transmissionMode + " CCON: " + cconStatus );
+}
+
+function logTouchEvent(event) {
+  let touch = event.data.touch;
+  console.log( padRight(toLocaleTime(touch.updateTime), LENGTH_TIMESTAMP, ' ') + padRight(getDeviceId(event.targetName), DEVICE_NAME_LENGTH, ' ') + padRight(event.eventType, DEVICE_NAME_LENGTH, ' ') );
+}
+
+function logBatteryStatusEvent(event) {
+  let batteryStatus = event.data.batteryStatus;
+  console.log( padRight(toLocaleTime(batteryStatus.updateTime), LENGTH_TIMESTAMP, ' ') + padRight(getDeviceId(event.targetName), DEVICE_NAME_LENGTH, ' ') + padRight(event.eventType, DEVICE_NAME_LENGTH, ' ') + batteryStatus.percentage + "%" );
+}
+
+function logLabelsChangedEvent(event) {
+  let data = event.data;
+  let change = "";
+  if (data.added) {
+    change = "Added: " + JSON.stringify(data.added);
+  } else if (data.modified) {
+    change = "Modified: " + JSON.stringify(data.modified)
+  } else if (data.removed) {
+    change = "Removed: " + JSON.stringify(data.removed);
+  } else {
+    change = "Unknown labelChange: " + JSON.stringify(data);
+  }
+  console.log( padRight(toLocaleTime(event.timestamp), LENGTH_TIMESTAMP, ' ') + padRight(getDeviceId(event.targetName), DEVICE_NAME_LENGTH, ' ') + padRight(event.eventType, DEVICE_NAME_LENGTH, ' ') + change);
+}
+
+function logCellularStatusEvent(event) {
+  let status = event.data.cellularStatus;
+  console.log( padRight(toLocaleTime(status.updateTime), LENGTH_TIMESTAMP, ' ') + padRight(getDeviceId(event.targetName), DEVICE_NAME_LENGTH, ' ') + padRight(event.eventType, DEVICE_NAME_LENGTH, ' ') + status.signalStrength + "%" );
+}
+
+function logRawData(jsonData) {
+  console.log("=======================================================================================================");
+  console.log(timestamp() + " rawData:\n" + JSON.stringify(jsonData,null,2));
+  console.log("=======================================================================================================");
+}
