@@ -1,5 +1,6 @@
 importScripts=require('./importscripts.js').importScripts;
 importScripts('./apikey.ns');
+importScripts('./util.ns');
 
 let device_id = "emub9t34902nju000bk9950";
 let urlPost = DT_API_V2_URL_VS + DT_API_V2_PROJECT_ID + DT_API_V2_DEVICE + device_id + DT_API_V2_PUBLISH;

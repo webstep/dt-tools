@@ -3,7 +3,6 @@
  *  Some common util methods and constants to be used by the tools
  *
  */
-const DT_API_V2_PROJECT_ID = 'b9or9mld9r7000ceiq20';
 let DEVICE_NAME_LENGTH = 25;
 let LENGTH_TIMESTAMP = 20;
 
