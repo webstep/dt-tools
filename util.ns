@@ -6,8 +6,8 @@
 let DEVICE_NAME_LENGTH = 25;
 let LENGTH_TIMESTAMP = 20;
 
-const DT_API_V2_URL = 'https://api.disruptive-technologies.com/v2beta1/projects/';
-const DT_API_V2_URL_VS = 'https://api.disruptive-technologies.com/emulator/v2beta1/projects/';
+const DT_API_V2_URL = 'https://api.disruptive-technologies.com/v2/projects/';
+const DT_API_V2_URL_VS = 'https://api.disruptive-technologies.com/emulator/v2/projects/';
 const DT_API_V2_DEVICES = '/devices?';
 const DT_API_V2_DEVICE = '/devices/';
 const DT_API_V2_STREAM_ALL = 'devices:stream?';
